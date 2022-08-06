@@ -3,8 +3,8 @@ package org.example;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import org.example.trueOrFalse.correct_answers;
-import org.example.trueOrFalse.true_or_false;
+import org.example.trueOrFalse.capture_answer;
+import org.example.trueOrFalse.trueOrFalse;
 import org.example.truthOrDare.truthOrDare;
 
 
@@ -15,8 +15,8 @@ public class Main {
     public static void main(String[] args) throws LoginException, InterruptedException {
         jda = JDABuilder.createLight(tokens.token)
                 .addEventListeners(new truthOrDare())
-                .addEventListeners(new true_or_false())
-                .addEventListeners(new correct_answers())
+                .addEventListeners(new trueOrFalse())
+                .addEventListeners(new capture_answer())
                 .build().awaitReady();
 
         String serverId = tokens.test_serverId;
