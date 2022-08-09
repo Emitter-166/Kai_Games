@@ -32,6 +32,8 @@ class operation implements Runnable{
             }
             try{
                 sendResult(channelId, answer);
+                sendLeaderboard(channelId);
+
             }catch (IllegalArgumentException exception){}
             capture_answer.temporary_winnersId = new ArrayList<>();
             capture_answer.answered = new ArrayList<>();
@@ -40,7 +42,6 @@ class operation implements Runnable{
 
         if(repeat != 1){
             Main.jda.getTextChannelById(channelId).sendMessage("`game over!`").queue();
-            sendLeaderboard(channelId);
         }
         capture_answer.winners = new HashMap<>();
 
@@ -62,16 +63,24 @@ public class trueOrFalse extends ListenerAdapter {
         Thread thread1 = null;
         switch (name){
             case "true-or-false":
+                if(isRunning){
+                    e.getInteraction().reply("`A game of true or false is already running!`").queue();
+                    return;
+                }
                 e.getInteraction().reply("`Sending true or false...`").queue();
                 isRunning = true;
                 channelId = e.getChannel().getId();
                 repeat = 1;
 
-                 thread1 = new Thread(new operation());
+                thread1 = new Thread(new operation());
                 thread1.start();
 
                 break;
             case "true-or-false-repeat":
+                if(isRunning){
+                    e.getInteraction().reply("`A game of true or false is already running!`").queue();
+                    return;
+                }
                 e.getInteraction().reply("`Sending true or false...`").queue();
                 isRunning = true;
                 channelId = e.getChannel().getId();
@@ -84,13 +93,16 @@ public class trueOrFalse extends ListenerAdapter {
 
             case "true-or-false-end":
                 e.getInteraction().reply("`Stopping true or false...`").queue();
-                if(thread != null)
+                if(thread != null){
                     thread.interrupt();
-
-                if(thread1 != null)
+                }
+                if(thread1 != null){
                     thread1.interrupt();
+                }
+
 
                 sendResult(channelId, answer);
+                sendLeaderboard(channelId);
                 capture_answer.temporary_winnersId = new ArrayList<>();
                 capture_answer.answered = new ArrayList<>();
 
@@ -113,16 +125,16 @@ public class trueOrFalse extends ListenerAdapter {
     static boolean send(String channelId){
         HttpResponse<JsonNode> response;
         try {
-            response = Unirest.get("https://opentdb.com/api.php?amount=1&category=9&difficulty=easy&type=boolean").asJson();
+            response = Unirest.get("https://opentdb.com/api.php?amount=1&type=boolean").asJson();
         } catch (UnirestException ex) {
             throw new RuntimeException(ex);
         }
-        String question = (String) ((JSONObject) (((JSONArray) response.getBody().getObject().get("results")).get(0))).get("question");
+        String question = ((JSONObject) (((JSONArray) response.getBody().getObject().get("results")).get(0))).get("question").toString().replace("&#039;", "'");
         boolean answer = Boolean.parseBoolean((String) ((JSONObject) (((JSONArray) response.getBody().getObject().get("results")).get(0))).get("correct_answer"));
         Main.jda.getTextChannelById(channelId).sendMessageEmbeds(new EmbedBuilder()
                 .setTitle("True or False?")
                 .setColor(Color.CYAN)
-                .setDescription("**" + question.replaceAll("&quot;", "\"") + "**")
+                .setDescription("**" + question.replace("&quot;", "\"") + "**")
                 .build()).queue();
         return answer;
     }
