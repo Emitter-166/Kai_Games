@@ -26,7 +26,7 @@ class operation implements Runnable{
         for(int i = 0; i < repeat; i++){
             answer = send(channelId);
             try {
-                Thread.sleep(20_000);
+                Thread.sleep(30_000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
